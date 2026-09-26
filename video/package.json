@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "render": "remotion render src/index.ts AgentBazaar out/agentbazaar.mp4 --codec=h264",
-    "preview": "remotion studio src/index.ts"
+    "preview": "remotion studio src/index.ts",
+    "record": "node record-demo.mjs"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,7 @@
   "devDependencies": {
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "playwright": "^1.63.0",
     "typescript": "^7.0.2"
   }
 }
