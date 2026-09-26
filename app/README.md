@@ -2,7 +2,7 @@
 
 A research orchestrator agent with an AVAX budget that discovers, hires, pays, and rates specialist AI agents, settling every payment on Avalanche Fuji.
 
-- **AgentRegistry.sol**: on-chain discovery + reputation (ERC-8004 style). `contracts/`
+- **AgentRegistry.sol**: on-chain discovery, payment, and reputation (ERC-8004 style). `payAgent(id)` forwards AVAX to the agent and records the payer; `rateJob(paymentRef, score)` is accepted only from that payer, once. `contracts/`
 - **Facilitator**: self-hosted x402 facilitator for Fuji (verifies EIP-3009 signatures, settles USDC on chain). `src/facilitator`
 - **Specialist agents**: three paid HTTP endpoints. Each call must carry proof of an on-chain payment (native AVAX transfer by default, or x402 USDC). `src/agents`
 - **Orchestrator**: plans with Claude, picks agents by rating and price, enforces the budget in code, pays via x402, judges results, posts ratings on chain, streams events. `src/orchestrator`
@@ -63,9 +63,9 @@ Open http://localhost:3000.
 5. Click "Ask again". The plan now skips the Budget Analyst with the reason shown.
 
 ## Payment modes (`PAY_MODE` in `.env`)
-- `avax` (default): the orchestrator sends native AVAX to the agent's `payTo`, then calls the agent with the tx hash in an `X-Payment-Tx` header. The agent verifies on chain that the tx succeeded, went to `payTo`, and paid at least the registry price, and rejects reused hashes. Prices in `agents.json` under `priceAvax`.
+- `avax` (default): the orchestrator calls `AgentRegistry.payAgent(id)` with the price in AVAX. The contract forwards the funds to the agent's `payTo`, records `{payer, agentId, amount}` under a payment reference, and emits `AgentPaid`. The orchestrator then calls the agent with the tx hash in an `X-Payment-Tx` header; the agent checks the receipt for an `AgentPaid` event for its own id with enough value, and rejects reused hashes. Ratings use the payment reference, so only the payer can rate and only once. Prices in `agents.json` under `priceAvax`.
 - `x402`: real x402 protocol with USDC on Fuji through the self-hosted facilitator in `src/facilitator`. Needs Fuji USDC from faucet.circle.com. Prices under `priceUsdc`.
-- `direct`: USDC transfer with tx-hash proof, no facilitator.
+- `direct`: USDC transfer with tx-hash proof, no facilitator. Ratings are skipped in this mode because there is no on-chain payment reference.
 After changing the mode, run `npm run reprice` so on-chain prices match the asset.
 
 ## Listing your own agent (open marketplace)
@@ -82,9 +82,16 @@ Demo: the Sentiment Agent (port 4004) runs with `npm run dev` but is registered 
 ## Safety properties (for the Q&A)
 - The budget cap is enforced in `Session.canPay()` before every payment, independent of the LLM. Max 10 paid calls per session. The x402 client also has a per-payment spend cap.
 - The orchestrator only pays endpoints listed in the registry, at the registry price.
-- One rating per `paymentRef` (the payment tx hash), enforced on chain.
+- A payment is counted as spent, and its receipt recorded, the moment it settles, even if the agent call then fails. The failed agent is rated 1 for that payment.
+- Ratings are bound to payments on chain: `rateJob` requires a payment reference created by `payAgent`, only the payer can rate, and only once. Fabricated references and third-party ratings revert.
 - Agents reject a payment tx hash that was already used, so one payment buys one call.
-- Known limitation: anyone can call `rateJob`. Future work: verify `paymentRef` against a USDC transfer to the agent's `payTo`.
+- Approving a session twice returns 409; the session guards itself too.
+
+## Tests
+```bash
+npm run test:all   # Foundry (11 tests) + Node (11 tests)
+```
+Node tests run the orchestrator loop with injected fakes (no chain, no LLM) and cover: paid request followed by endpoint failure, retry without budget overflow, the paid-call cap, malformed agent responses, duplicate payment reuse, missing or malformed payment headers, missing x402 settlement headers, concurrent approvals, and reputation-based avoidance.
 
 ## Layout
 ```

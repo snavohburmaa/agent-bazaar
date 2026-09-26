@@ -12,7 +12,9 @@ import { HTTPFacilitatorClient } from "@x402/core/server";
 import { ExactEvmScheme } from "@x402/evm/exact/server";
 import agents from "./agents.json" with { type: "json" };
 import { NETWORK, USDC_ADDRESS, PAY_MODE, ASSET, ASSET_DECIMALS, FACILITATOR_URL, providerAddress, publicClient } from "../shared/config.js";
-import { verifyDirectPayment, verifyNativePayment } from "../shared/usdc.js";
+import { verifyDirectPayment } from "../shared/usdc.js";
+import { listAgents, verifyRegistryPayment } from "../shared/registry.js";
+import { makePaymentGuard } from "./guard.js";
 
 const key = process.env.AGENT ?? "news";
 const found = agents.find((a) => a.key === key);
@@ -70,26 +72,24 @@ if (PAY_MODE === "x402") {
     ),
   );
 } else {
-  const used = new Set<string>();
-  app.use("/analyze", async (req: Request, res: Response, next: NextFunction) => {
-    const tx = (req.header("X-Payment-Tx") ?? "") as Hex;
-    if (!tx) {
-      res.status(402).json({ error: "Payment Required", mode: PAY_MODE, payTo, asset: PAY_MODE === "avax" ? "AVAX" : USDC_ADDRESS, amount: price.toString(), network: NETWORK });
-      return;
+  // Resolve this agent's on-chain id by name (refreshed if a lookup fails, e.g. after a re-seed).
+  let myId: number | null = null;
+  async function resolveId(): Promise<number> {
+    if (myId !== null) return myId;
+    const rows = await listAgents();
+    const row = rows.find((r) => r.name === def.name && r.active) ?? rows.find((r) => r.name === def.name);
+    if (!row) throw new Error(`${def.name} is not registered in the registry yet`);
+    myId = row.id;
+    return myId;
+  }
+  const verify = async (tx: Hex) => {
+    if (PAY_MODE === "avax") {
+      try { return await verifyRegistryPayment(tx, await resolveId(), price); }
+      catch (e: any) { myId = null; return { ok: false, reason: e?.message ?? "verification failed" }; }
     }
-    if (used.has(tx.toLowerCase())) {
-      res.status(402).json({ error: "payment already used" });
-      return;
-    }
-    const v = PAY_MODE === "avax" ? await verifyNativePayment(tx, payTo, price) : await verifyDirectPayment(tx, payTo, price);
-    if (!v.ok) {
-      res.status(402).json({ error: v.reason });
-      return;
-    }
-    used.add(tx.toLowerCase());
-    res.setHeader("X-Payment-Tx", tx);
-    next();
-  });
+    return verifyDirectPayment(tx, payTo, price);
+  };
+  app.use("/analyze", makePaymentGuard(verify, () => ({ mode: PAY_MODE, payTo, asset: PAY_MODE === "avax" ? "AVAX" : USDC_ADDRESS, amount: price.toString(), network: NETWORK, howTo: PAY_MODE === "avax" ? "call AgentRegistry.payAgent(id) with value >= amount, then retry with X-Payment-Tx: <txHash>" : "transfer USDC to payTo, then retry with X-Payment-Tx: <txHash>" })));
 }
 
 // ---------- the actual work ----------

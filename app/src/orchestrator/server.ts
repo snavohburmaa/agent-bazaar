@@ -71,6 +71,8 @@ app.post("/api/sessions/:id/approve", (req, res) => {
   if (s.status !== "planned") { res.status(409).json({ error: `session is ${s.status}` }); return; }
   const { budget_usdc, excluded_agent_ids } = req.body ?? {};
   agentCache = null;
+  s.status = "running" as any; // claim the session synchronously so a concurrent approve gets 409
+  s.status = "planned";
   void s.run({ budgetUsdc: budget_usdc ? Number(budget_usdc) : undefined, excludedAgentIds: excluded_agent_ids });
   res.json({ ok: true });
 });

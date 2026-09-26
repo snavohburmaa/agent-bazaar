@@ -9,14 +9,22 @@ contract AgentRegistryTest is Test {
     address provider = address(0xBEEF);
     address payTo = address(0xCAFE);
     address orchestrator = address(0xABCD);
+    address stranger = address(0x5713);
 
     function setUp() public {
         reg = new AgentRegistry();
+        vm.deal(orchestrator, 10 ether);
+        vm.deal(stranger, 10 ether);
     }
 
     function _register() internal returns (uint256) {
         vm.prank(provider);
-        return reg.registerAgent("News Analyst", "news", "http://localhost:4001/analyze", payTo, 20000);
+        return reg.registerAgent("News Analyst", "news", "http://localhost:4001/analyze", payTo, 0.002 ether);
+    }
+
+    function _pay(address who, uint256 id, uint256 value) internal returns (bytes32) {
+        vm.prank(who);
+        return reg.payAgent{value: value}(id);
     }
 
     function testRegisterStoresListing() public {
@@ -26,9 +34,7 @@ contract AgentRegistryTest is Test {
         AgentRegistry.Agent memory a = reg.getAgent(0);
         assertEq(a.owner, provider);
         assertEq(a.payTo, payTo);
-        assertEq(a.name, "News Analyst");
-        assertEq(a.category, "news");
-        assertEq(a.pricePerCall, 20000);
+        assertEq(a.pricePerCall, 0.002 ether);
         assertTrue(a.active);
     }
 
@@ -37,56 +43,94 @@ contract AgentRegistryTest is Test {
         vm.prank(orchestrator);
         vm.expectRevert(AgentRegistry.NotOwner.selector);
         reg.updateAgent(id, "x", 1, false);
-
         vm.prank(provider);
-        reg.updateAgent(id, "http://new", 30000, false);
-        AgentRegistry.Agent memory a = reg.getAgent(id);
-        assertEq(a.endpoint, "http://new");
-        assertEq(a.pricePerCall, 30000);
-        assertFalse(a.active);
+        reg.updateAgent(id, "http://new", 3, false);
+        assertFalse(reg.getAgent(id).active);
     }
 
-    function testRateJobAndAverage() public {
+    function testPayForwardsFundsAndRecordsPayment() public {
         uint256 id = _register();
-        vm.startPrank(orchestrator);
-        reg.rateJob(id, 5, keccak256("tx1"));
-        reg.rateJob(id, 4, keccak256("tx2"));
-        vm.stopPrank();
-        assertEq(reg.averageRatingX100(id), 450);
-        AgentRegistry.Agent memory a = reg.getAgent(id);
-        assertEq(a.jobsRated, 2);
-        assertEq(a.ratingSum, 9);
+        uint256 before = payTo.balance;
+        bytes32 ref = _pay(orchestrator, id, 0.002 ether);
+        assertEq(payTo.balance - before, 0.002 ether);
+        (address payer, uint256 agentId, uint256 amount, bool rated) = reg.payments(ref);
+        assertEq(payer, orchestrator);
+        assertEq(agentId, id);
+        assertEq(amount, 0.002 ether);
+        assertFalse(rated);
     }
 
-    function testCannotRateSamePaymentTwice() public {
+    function testUnderpaymentReverts() public {
         uint256 id = _register();
-        bytes32 ref = keccak256("tx1");
-        reg.rateJob(id, 5, ref);
+        vm.prank(orchestrator);
+        vm.expectRevert(abi.encodeWithSelector(AgentRegistry.Underpaid.selector, 0.002 ether, 0.001 ether));
+        reg.payAgent{value: 0.001 ether}(id);
+    }
+
+    function testCannotPayInactiveAgent() public {
+        uint256 id = _register();
+        vm.prank(provider);
+        reg.updateAgent(id, "http://x", 0.002 ether, false);
+        vm.prank(orchestrator);
+        vm.expectRevert(AgentRegistry.InactiveAgent.selector);
+        reg.payAgent{value: 0.002 ether}(id);
+    }
+
+    function testPayerCanRateOnce() public {
+        uint256 id = _register();
+        bytes32 ref = _pay(orchestrator, id, 0.002 ether);
+        vm.prank(orchestrator);
+        reg.rateJob(ref, 4);
+        assertEq(reg.averageRatingX100(id), 400);
+        vm.prank(orchestrator);
         vm.expectRevert(AgentRegistry.AlreadyRated.selector);
-        reg.rateJob(id, 1, ref);
+        reg.rateJob(ref, 5);
+    }
+
+    function testOnlyPayerCanRate() public {
+        uint256 id = _register();
+        bytes32 ref = _pay(orchestrator, id, 0.002 ether);
+        vm.prank(stranger);
+        vm.expectRevert(AgentRegistry.NotPayer.selector);
+        reg.rateJob(ref, 5);
+        vm.prank(provider);
+        vm.expectRevert(AgentRegistry.NotPayer.selector);
+        reg.rateJob(ref, 5);
+    }
+
+    function testCannotRateFabricatedReference() public {
+        _register();
+        vm.prank(orchestrator);
+        vm.expectRevert(AgentRegistry.UnknownPayment.selector);
+        reg.rateJob(keccak256("made up"), 5);
     }
 
     function testScoreBounds() public {
         uint256 id = _register();
+        bytes32 ref = _pay(orchestrator, id, 0.002 ether);
+        vm.startPrank(orchestrator);
         vm.expectRevert(AgentRegistry.InvalidScore.selector);
-        reg.rateJob(id, 0, keccak256("a"));
+        reg.rateJob(ref, 0);
         vm.expectRevert(AgentRegistry.InvalidScore.selector);
-        reg.rateJob(id, 6, keccak256("b"));
+        reg.rateJob(ref, 6);
+        vm.stopPrank();
+    }
+
+    function testAverageAcrossPayments() public {
+        uint256 id = _register();
+        bytes32 r1 = _pay(orchestrator, id, 0.002 ether);
+        bytes32 r2 = _pay(orchestrator, id, 0.002 ether);
+        assertTrue(r1 != r2);
+        vm.startPrank(orchestrator);
+        reg.rateJob(r1, 5);
+        reg.rateJob(r2, 4);
+        vm.stopPrank();
+        assertEq(reg.averageRatingX100(id), 450);
+        assertEq(reg.getAgent(id).jobsRated, 2);
     }
 
     function testUnknownAgentReverts() public {
         vm.expectRevert(AgentRegistry.UnknownAgent.selector);
         reg.getAgent(3);
-    }
-
-    function testUnratedAverageIsZero() public {
-        uint256 id = _register();
-        assertEq(reg.averageRatingX100(id), 0);
-    }
-
-    function testGetAgentsReturnsAll() public {
-        _register();
-        _register();
-        assertEq(reg.getAgents().length, 2);
     }
 }

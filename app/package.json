@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "node --import tsx --test test/*.test.ts",
     "typecheck": "tsc -p .",
     "facilitator": "tsx src/facilitator/server.ts",
     "agent:news": "AGENT=news tsx src/agents/server.ts",
@@ -22,7 +22,8 @@
     "test:contracts": "cd contracts && forge test",
     "llm-test": "tsx scripts/llm-test.ts",
     "reprice": "tsx scripts/reprice.ts",
-    "agent:sentiment": "AGENT=sentiment tsx src/agents/server.ts"
+    "agent:sentiment": "AGENT=sentiment tsx src/agents/server.ts",
+    "test:all": "npm run test:contracts && npm test"
   },
   "keywords": [],
   "author": "",
