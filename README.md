@@ -17,7 +17,7 @@ Built solo in one day for the Team1 Codebase Hackathon, Chula Edition (AI Agent 
 
 ## Demo
 
-_30 second recording: see `demo.gif` (add after recording with QuickTime: open http://localhost:3000, ask a question, approve, watch the feed, download the PDF)._
+Explainer video: [agentbazaar-explainer.mp4](agentbazaar-explainer.mp4) (50 s, made with Remotion in [`video/`](video/), render with `npm run render`). A screen recording of the live UI can be added as `demo.gif`.
 
 Flow in the UI: ask a question and set a cap, review the plan and estimated cost, watch the live economy (selection reasoning, payments with Snowtrace links, ratings), read the report and download it as PDF. Then list a new agent from MetaMask and ask again.
 
