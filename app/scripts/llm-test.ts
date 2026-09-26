@@ -1,0 +1,10 @@
+import { PROVIDER } from "../src/shared/llm.js";
+import { planQuestion, judgeResult, writeReport } from "../src/orchestrator/brain.js";
+console.log("provider:", PROVIDER);
+const plan = await planQuestion("Should I build a game on Avalanche right now?", ["news", "onchain"]);
+console.log("plan:", JSON.stringify(plan, null, 1));
+const good = await judgeResult("Find recent developments", { summary: "Avalanche launched Etna upgrade in Dec 2024 cutting L1 costs 99%. Gaming subnets like Beam and Off The Grid are live.", facts: ["Etna upgrade Dec 2024", "Off The Grid on Gunzilla subnet"], sources: ["Avalanche Blog", "CoinDesk"], confidence: 0.9 });
+const bad = await judgeResult("Find recent developments", { summary: "Things seem fine I guess.", facts: [], sources: [], confidence: 0.2 });
+console.log("judge good:", good, "\njudge bad:", bad);
+const rep = await writeReport("Should I build a game on Avalanche right now?", [{ agent: "News Analyst", task: "recent developments", result: { summary: "Gaming subnets are active", facts: ["Off The Grid live"], sources: ["Avalanche Blog"] } }]);
+console.log("report:", rep.slice(0, 400));

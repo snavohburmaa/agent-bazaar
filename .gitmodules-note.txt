@@ -1,0 +1,2 @@
+Foundry dependency: app/contracts/lib/forge-std is not committed.
+Run: cd app/contracts && forge install foundry-rs/forge-std --no-git

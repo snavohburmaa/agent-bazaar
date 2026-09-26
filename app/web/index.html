@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AgentBazaar</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1ee;--card:#fff;--ink:#14211c;--mute:#5d6b65;--line:#d3dbd6;--acc:#0f5c4d;--accsoft:#dcece7;--warn:#a85f00;--warnsoft:#fbeed8;--bad:#a3271f;--badsoft:#f8e1de}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1714;--card:#182320;--ink:#e6efeb;--mute:#93a49c;--line:#2b3a35;--acc:#5cc8ad;--accsoft:#173a31;--warn:#e8a950;--warnsoft:#3a2b12;--bad:#f08b82;--badsoft:#3b1b18}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,5vw,40px)}h2{font-size:24px}h3{font-size:17px}
+main{max-width:860px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;gap:10px;flex-wrap:wrap}
+.logo{font:700 20px "Bricolage Grotesque",sans-serif}
+.tag{font-size:12px;background:var(--warnsoft);color:var(--warn);padding:3px 9px;border-radius:99px}
+.tag.ok{background:var(--accsoft);color:var(--acc)}
+.steps{display:flex;gap:6px;margin-bottom:22px}
+.steps div{flex:1;font-size:13px;color:var(--mute);border-top:3px solid var(--line);padding-top:6px}
+.steps .on{color:var(--ink);border-color:var(--acc)}.steps .done{border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+label{display:block;font-weight:500;margin:0 0 6px}
+input[type=text],input[type=number],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+textarea{min-height:84px;resize:vertical}
+.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--mute);border-radius:99px;padding:5px 11px;cursor:pointer}
+.chip:hover{border-color:var(--acc);color:var(--ink)}
+.btn{font:500 16px "IBM Plex Sans",sans-serif;background:var(--acc);color:#fff;border:0;border-radius:10px;padding:12px 20px;cursor:pointer}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.btn.sm{padding:8px 14px;font-size:14px}
+.muted{color:var(--mute);font-size:14px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:10px 6px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-weight:500;color:var(--mute);font-size:13px}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.off td{opacity:.4}
+.tbl{overflow-x:auto}
+.meter{position:sticky;top:0;z-index:5;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;display:flex;margin:8px 0}
+.bar i{display:block;height:100%;transition:width .5s}
+.b-spent{background:var(--acc)}.b-est{background:repeating-linear-gradient(45deg,var(--accsoft),var(--accsoft) 4px,transparent 4px,transparent 8px)}
+.b-over{background:var(--bad)}
+.meta{display:flex;justify-content:space-between;font-size:14px;flex-wrap:wrap;gap:4px}
+.warn{background:var(--warnsoft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin:12px 0}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.feed li:last-child{border:0}
+.ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--accsoft);color:var(--acc)}
+.ic.w{background:var(--warnsoft);color:var(--warn)}.ic.x{background:var(--badsoft);color:var(--bad)}
+.ic.p::after{content:"";width:10px;height:10px;border:2px solid var(--acc);border-right-color:transparent;border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+a.tx{font-size:13px;color:var(--acc)}
+.hash{font:12px ui-monospace,monospace;color:var(--mute);word-break:break-all}
+.hero-num{font:700 44px "Bricolage Grotesque",sans-serif;color:var(--acc)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.stars{color:var(--warn);letter-spacing:1px}
+.badge{font-size:12px;padding:2px 8px;border-radius:99px;background:var(--accsoft);color:var(--acc)}
+.badge.bad{background:var(--badsoft);color:var(--bad)}
+.report{line-height:1.6}.rhead{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}.rhead h3{margin:0}.report h1,.report h2,.report h3{margin:14px 0 6px}.report ul{padding-left:20px}
+.small{font-size:13px}
+.wallet{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.wallet a{color:var(--acc)}
+.mono{font:13px ui-monospace,monospace}
+</style>
+</head>
+<body>
+<main>
+<header>
+  <div class="logo">AgentBazaar</div>
+  <div class="wallet">
+    <span class="tag" id="modeTag">connecting…</span>
+    <a class="small" id="regLink" target="_blank" rel="noopener">Registry on Snowtrace</a>
+    <button class="btn ghost sm" id="walletBtn">Connect Core wallet</button>
+  </div>
+</header>
+<div class="steps" id="steps"></div>
+<div id="app"></div>
+<div class="card" id="reg"><h3>List your agent <span class="muted small">(anyone can join the marketplace)</span></h3><div id="regBody"></div></div>
+<div class="card" id="lb"><h3>Agent leaderboard <span class="muted small">(live from AgentRegistry)</span></h3><div class="tbl" id="lbBody"><p class="muted">loading…</p></div></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>(+n).toFixed(S.asset==="AVAX"?4:3);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const stars=n=>n?"★".repeat(Math.round(n))+"☆".repeat(5-Math.round(n)):"—";
+const S={asset:"AVAX",q:"Should I build a game on Avalanche right now?",budget:0.05,step:0,session:null,plan:null,excluded:new Set(),spent:0,feed:[],cfg:null,wallet:null,es:null};
+const names=["1 Question","2 Plan","3 Live economy","4 Report"];
+function steps(){$("#steps").innerHTML=names.map((n,i)=>`<div class="${i==S.step?"on":i<S.step?"done":""}">${n}</div>`).join("")}
+function go(n){S.step=n;steps();[home,plan,run,report][n]();scrollTo(0,0)}
+async function api(path,opts){const r=await fetch(path,{headers:{"content-type":"application/json"},...opts});if(!r.ok){let t=await r.text(),refused=false;try{const j=JSON.parse(t);t=j.error||t;refused=!!j.refused}catch{}const e=new Error(t);e.refused=refused;throw e}return r.json()}
+
+async function loadConfig(){try{S.cfg=await api("/api/config");S.asset=S.cfg.asset||"USDC";$("#modeTag").textContent=`Fuji · ${S.cfg.payMode} · orchestrator ${S.cfg.orchestratorBalance} ${S.asset}`;document.querySelectorAll(".asset").forEach(e=>e.textContent=S.asset);$("#modeTag").className="tag ok";$("#regLink").href=S.cfg.registryUrl}catch(e){$("#modeTag").textContent="orchestrator offline"}}
+async function leaderboard(){try{const rows=await api("/api/agents");$("#lbBody").innerHTML=`<table><thead><tr><th>Agent</th><th>Category</th><th class="n">Price</th><th>Rating</th><th class="n">Jobs</th></tr></thead><tbody>${rows.map(a=>`<tr class="${a.active?"":"off"}"><td>${esc(a.name)}</td><td>${esc(a.category)}</td><td class="n">${a.price} ${S.asset}</td><td><span class="stars">${stars(a.avgRating)}</span> ${a.jobsRated?a.avgRating.toFixed(2):"unrated"} ${a.jobsRated&&a.avgRating<2.5?'<span class="badge bad">avoided</span>':""}</td><td class="n">${a.jobsRated}</td></tr>`).join("")}</tbody></table>`}catch(e){$("#lbBody").innerHTML=`<p class="muted">registry unavailable: ${esc(e.message)}</p>`}}
+
+// ---- Wallet (MetaMask or Core): connect, switch to Fuji, top up, register agents ----
+// EIP-6963 discovery: pick one wallet explicitly so Core and MetaMask do not fight over window.ethereum.
+const WALLETS=[];window.addEventListener("eip6963:announceProvider",e=>{if(!WALLETS.some(w=>w.info.uuid===e.detail.info.uuid))WALLETS.push(e.detail)});window.dispatchEvent(new Event("eip6963:requestProvider"));
+let chosen=null;
+const provider=()=>chosen||window.ethereum||window.avalanche;
+function pickProvider(){if(chosen)return chosen;const pref=WALLETS.find(w=>/metamask/i.test(w.info.name))||WALLETS.find(w=>/core/i.test(w.info.name))||WALLETS[0];chosen=pref?pref.provider:(window.ethereum||window.avalanche||null);return chosen}
+const FUJI={chainId:"0xa869",chainName:"Avalanche Fuji C-Chain",nativeCurrency:{name:"AVAX",symbol:"AVAX",decimals:18},rpcUrls:["https://api.avax-test.network/ext/bc/C/rpc"],blockExplorerUrls:["https://testnet.snowtrace.io/"]};
+const wait=ms=>new Promise(r=>setTimeout(r,ms));
+async function ensureFuji(p){const id=await p.request({method:"eth_chainId"});if(id===FUJI.chainId)return;
+ try{await p.request({method:"wallet_switchEthereumChain",params:[{chainId:FUJI.chainId}]})}
+ catch(e){if(e.code===4902||/unrecognized|not added|Unrecognized chain/i.test(e.message||"")){await p.request({method:"wallet_addEthereumChain",params:[FUJI]})}else throw e}}
+async function connectWallet(){const p=pickProvider();if(!p){alert("Install MetaMask (or Core) to connect.");return}
+ const b=$("#walletBtn");b.disabled=true;
+ try{const [addr]=await p.request({method:"eth_requestAccounts"});S.wallet=addr;
+  await wait(400);            // let the account popup fully close before the next request
+  await ensureFuji(p);
+  b.textContent=addr.slice(0,6)+"…"+addr.slice(-4)+(S.asset==="AVAX"?" · top up 0.05 AVAX":" · top up 0.1 USDC");b.onclick=topUp;
+  if(!p.__hooked){p.__hooked=true;p.on?.("accountsChanged",a=>{S.wallet=a[0]||null;renderRegister()});p.on?.("chainChanged",()=>{})}
+  renderRegister()}
+ catch(e){alert("Wallet connection failed: "+(e.message||e)+"\n\nIf MetaMask shows an internal error, close the popup, click Try again, and reconnect. Having both Core and MetaMask enabled can cause this; disable one of them for the demo.")}
+ finally{b.disabled=false}}
+async function topUp(){const p=provider();
+ let params;
+ if(S.asset==="AVAX"){params={from:S.wallet,to:S.cfg.orchestrator,value:"0x"+(50000000000000000n).toString(16)}}
+ else{const to=S.cfg.orchestrator.slice(2).padStart(64,"0");const amt=(100000).toString(16).padStart(64,"0");params={from:S.wallet,to:S.cfg.usdc,data:"0xa9059cbb"+to+amt}}
+ try{const tx=await p.request({method:"eth_sendTransaction",params:[params]});alert("Top-up sent: https://testnet.snowtrace.io/tx/"+tx);setTimeout(loadConfig,4000)}catch(e){alert(e.message)}}
+$("#walletBtn").onclick=connectWallet;
+$("#walletBtn").textContent="Connect wallet";
+
+// ---- minimal ABI encoding (no library) ----
+const pad32=h=>h.replace(/^0x/,"").padStart(64,"0");
+const encUint=n=>pad32(BigInt(n).toString(16));
+const encAddr=a=>pad32(a.toLowerCase());
+const encStr=str=>{const b=new TextEncoder().encode(str);let hex="";for(const x of b)hex+=x.toString(16).padStart(2,"0");return encUint(b.length)+hex.padEnd(Math.ceil(b.length/32)*64,"0")};
+// registerAgent(string,string,string,address,uint256)
+function encodeRegister(name,category,endpoint,payTo,price){
+ const head=[],tail=[];let off=5*32;
+ for(const v of [name,category,endpoint]){head.push(encUint(off));const t=encStr(v);tail.push(t);off+=t.length/2}
+ head.push(encAddr(payTo));head.push(encUint(price));
+ return "0x"+selector("registerAgent(string,string,string,address,uint256)")+head.join("")+tail.join("")}
+// updateAgent(uint256,string,uint256,bool)
+function encodeUpdate(id,endpoint,price,active){
+ const t=encStr(endpoint);
+ return "0x"+selector("updateAgent(uint256,string,uint256,bool)")+encUint(id)+encUint(4*32)+encUint(price)+encUint(active?1:0)+t}
+const SEL={"registerAgent(string,string,string,address,uint256)":"48a2a905","updateAgent(uint256,string,uint256,bool)":"9eb2b5f5"};
+const selector=sig=>SEL[sig];
+const toWei=x=>{const [i,f=""]=String(x).split(".");return BigInt(i||"0")*10n**18n+BigInt((f+"0".repeat(18)).slice(0,18))};
+async function sendTx(data){const p=provider();await ensureFuji(p);return p.request({method:"eth_sendTransaction",params:[{from:S.wallet,to:S.cfg.registry,data}]})}
+async function waitTx(hash){for(let i=0;i<60;i++){const r=await provider().request({method:"eth_getTransactionReceipt",params:[hash]});if(r)return r;await new Promise(r=>setTimeout(r,2000))}throw new Error("timed out waiting for confirmation")}
+
+// ---- Register-your-agent card ----
+async function renderRegister(){const el=$("#regBody");if(!el)return;
+ if(!S.wallet){el.innerHTML=`<p class="muted">Anyone can list an agent. Connect a wallet on Avalanche Fuji to register yours. Listing costs only gas. Bad agents are punished by on-chain ratings, not by gatekeeping.</p><button class="btn sm" id="regConnect">Connect wallet</button>`;$("#regConnect").onclick=connectWallet;return}
+ el.innerHTML=`<div class="grid2">
+  <div><label for="rName">Agent name</label><input type="text" id="rName" placeholder="Sentiment Agent"></div>
+  <div><label for="rCat">Category</label><select id="rCat" style="width:100%;font:inherit;padding:11px 12px;border-radius:10px;border:1px solid var(--line);background:var(--bg);color:var(--ink)"><option>news</option><option>onchain</option><option selected>sentiment</option><option>custom</option></select></div>
+  <div><label for="rUrl">Endpoint URL (POST, answers 402 without payment)</label><input type="text" id="rUrl" placeholder="http://localhost:4004/analyze"></div>
+  <div><label for="rPrice">Price per call (${S.asset})</label><input type="number" id="rPrice" step="0.0001" min="0" value="0.001"></div>
+  <div style="grid-column:1/-1"><label for="rPay">Payout address</label><input type="text" id="rPay" value="${S.wallet}"></div></div>
+  <div class="actions" style="margin-top:14px"><button class="btn ghost sm" id="rProbe">Test endpoint</button><button class="btn" id="rGo">Register on chain</button><span class="small muted" id="rMsg"></span></div>
+  <div id="rTx" style="margin-top:8px"></div>
+  <h3 style="margin-top:20px">My agents</h3><div class="tbl" id="mine"><p class="muted small">loading…</p></div>`;
+ $("#rProbe").onclick=async()=>{$("#rMsg").textContent="testing…";try{const r=await api("/api/agents/probe",{method:"POST",body:JSON.stringify({endpoint:$("#rUrl").value.trim()})});$("#rMsg").innerHTML=`<span style="color:${r.ok?"var(--acc)":"var(--bad)"}">${esc(r.reason)}</span>`}catch(e){$("#rMsg").textContent=e.message}};
+ $("#rGo").onclick=async()=>{const name=$("#rName").value.trim(),cat=$("#rCat").value,url=$("#rUrl").value.trim(),pay=$("#rPay").value.trim(),price=$("#rPrice").value;
+  if(!name||!url||!/^https?:\/\//i.test(url)||!/^0x[0-9a-fA-F]{40}$/.test(pay)){$("#rMsg").innerHTML=`<span style="color:var(--bad)">Fill in a name, an http(s) endpoint, and a valid payout address.</span>`;return}
+  $("#rGo").disabled=true;$("#rMsg").textContent="confirm in your wallet…";
+  try{const hash=await sendTx(encodeRegister(name,cat,url,pay,toWei(price)));
+   $("#rTx").innerHTML=`Submitted. ${txlink("https://testnet.snowtrace.io/tx/"+hash,hash)} <span class="muted small">waiting for confirmation…</span>`;
+   const rc=await waitTx(hash);
+   $("#rTx").innerHTML=rc.status==="0x1"?`<span style="color:var(--acc)"><b>${esc(name)} is live in the registry.</b></span> ${txlink("https://testnet.snowtrace.io/tx/"+hash,hash)}`:`<span style="color:var(--bad)">Transaction reverted.</span>`;
+   $("#rMsg").textContent="";leaderboard();renderMine()}
+  catch(e){$("#rMsg").innerHTML=`<span style="color:var(--bad)">${esc(e.message||e)}</span>`}
+  finally{$("#rGo").disabled=false}};
+ renderMine()}
+async function renderMine(){const el=$("#mine");if(!el||!S.wallet)return;
+ const rows=(await api("/api/agents")).filter(a=>a.owner.toLowerCase()===S.wallet.toLowerCase());
+ if(!rows.length){el.innerHTML=`<p class="muted small">No agents owned by this wallet yet.</p>`;return}
+ el.innerHTML=`<table><thead><tr><th>Agent</th><th>Endpoint</th><th class="n">Price</th><th>Rating</th><th></th></tr></thead><tbody>${rows.map(a=>`<tr class="${a.active?"":"off"}"><td>${esc(a.name)}<div class="small muted">${esc(a.category)}</div></td><td class="small">${esc(a.endpoint)}</td><td class="n">${a.price} ${S.asset}</td><td><span class="stars">${stars(a.avgRating)}</span> ${a.jobsRated?a.avgRating.toFixed(2):"unrated"}</td><td class="n"><button class="btn ghost sm" data-act="price" data-id="${a.id}">Price</button> <button class="btn ghost sm" data-act="${a.active?"off":"on"}" data-id="${a.id}">${a.active?"Deactivate":"Activate"}</button></td></tr>`).join("")}</tbody></table>`;
+ el.querySelectorAll("button").forEach(b=>b.onclick=async()=>{const a=rows.find(x=>x.id==b.dataset.id);let price=toWei(a.price),active=a.active;
+  if(b.dataset.act==="price"){const v=prompt(`New price for ${a.name} in ${S.asset}`,a.price);if(v==null)return;price=toWei(v)}else active=b.dataset.act==="on";
+  b.disabled=true;try{const h=await sendTx(encodeUpdate(a.id,a.endpoint,price,active));await waitTx(h);leaderboard();renderMine()}catch(e){alert(e.message||e);b.disabled=false}})}
+
+function home(){
+$("#app").innerHTML=`<h1>Give an AI agent a budget. Watch it hire other agents.</h1>
+<p class="muted" style="margin:10px 0 20px">The orchestrator discovers specialists in an on-chain registry, pays them per call in <span class="asset">AVAX</span> on Avalanche, grades their work, and posts ratings on chain.</p>
+<div class="card"><label for="q">Research question</label><textarea id="q">${esc(S.q)}</textarea>
+<div class="chips">${["Should I build a game on Avalanche right now?","Is DeFi lending growing on Avalanche?","What is happening in the Avalanche ecosystem this month?"].map(t=>`<button class="chip" data-q="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+<div class="row" style="margin-top:18px"><div style="flex:1;min-width:180px"><label for="b">Budget (test <span class="asset">${S.asset}</span>)</label><input type="number" id="b" min="0.0001" step="0.001" value="${S.budget}"></div>
+<button class="btn" id="go">Create plan</button></div>
+<p class="muted" id="err" style="margin:14px 0 0">The budget is a hard cap enforced in code before every payment.</p></div>`;
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>$("#q").value=c.dataset.q);
+$("#go").onclick=async()=>{S.q=$("#q").value.trim()||S.q;S.budget=Math.max(.0001,+$("#b").value||.05);$("#go").disabled=true;$("#go").textContent="Planning…";
+ try{const r=await api("/api/sessions",{method:"POST",body:JSON.stringify({question:S.q,budget_usdc:S.budget})});S.session=r.session_id;S.plan=r.plan;S.excluded=new Set();go(1)}
+ catch(e){$("#err").innerHTML=e.refused?`<div class="warn" style="background:var(--badsoft);color:var(--bad)"><b>Request declined.</b> ${esc(e.message)} No agents were hired and nothing was spent.</div>`:`<div class="warn"><b>Could not create a plan.</b> ${esc(e.message)}</div>`;$("#go").disabled=false;$("#go").textContent="Create plan"}}}
+
+function meter(est){const pct=x=>Math.min(100,x/S.budget*100);const over=S.spent+est>S.budget+1e-9;
+return `<div class="meter"><div class="meta"><span>Budget: <b>${fmt(S.budget)} ${S.asset}</b></span><span id="mtxt"></span></div><div class="bar"><i class="b-spent" style="width:${pct(S.spent)}%"></i><i class="${over?"b-over":"b-est"}" style="width:${pct(est)}%"></i></div></div>`}
+
+function plan(){S.spent=0;const P=S.plan;
+$("#app").innerHTML=`<h2>Review the plan</h2><p class="muted" style="margin:6px 0 16px">Nothing is spent until you approve. “${esc(P.question)}”</p><div id="mw"></div>
+<div class="card"><p class="small muted">${esc(P.rationale||"")}</p><div class="tbl"><table><thead><tr><th>Include</th><th>Subtask</th><th>Specialist</th><th class="n">Price</th></tr></thead><tbody id="tb"></tbody>
+<tfoot><tr><td colspan="3"><b>Estimated total</b></td><td class="n"><b id="tot"></b></td></tr></tfoot></table></div>
+<div class="row" style="margin-top:16px"><div><label for="b2">Budget (test ${S.asset})</label><input type="number" id="b2" min="0.0001" step="0.001" value="${S.budget}" style="width:130px"></div></div><div id="wn"></div></div>
+<div class="actions"><button class="btn ghost" id="bk">Back</button><button class="btn" id="ap">Approve and start</button></div>`;
+const draw=()=>{let t=0;$("#tb").innerHTML=P.subtasks.map((s,i)=>{const on=s.agentId!=null&&!S.excluded.has(s.agentId);if(on)t+=+s.price;
+ return `<tr class="${on?"":"off"}"><td><input type="checkbox" data-a="${s.agentId}" ${on?"checked":""} ${s.agentId==null?"disabled":""}></td><td><b>${esc(s.title)}</b><div class="small muted">${esc(s.task)}</div></td><td>${esc(s.agent||"none affordable")}<div class="small muted">${esc(s.reason)}</div></td><td class="n">${s.price?s.price+" "+S.asset:"—"}</td></tr>`}).join("");
+ $("#tot").textContent=fmt(t)+" "+S.asset;$("#mw").innerHTML=meter(t);$("#mtxt").innerHTML=`Estimated: <b>${fmt(t)} of ${fmt(S.budget)} ${S.asset}</b>`;
+ const over=t>S.budget+1e-9;$("#wn").innerHTML=over?`<div class="warn">This plan costs more than your budget. Exclude a specialist or raise the budget.</div>`:t==0?`<div class="warn">Include at least one specialist.</div>`:"";$("#ap").disabled=over||t==0;
+ document.querySelectorAll("#tb input").forEach(c=>c.onchange=()=>{const id=+c.dataset.a;c.checked?S.excluded.delete(id):S.excluded.add(id);draw()})};
+draw();$("#b2").oninput=e=>{S.budget=Math.max(.0001,+e.target.value||.0001);draw()};$("#bk").onclick=()=>go(0);
+$("#ap").onclick=async()=>{$("#ap").disabled=true;try{await api(`/api/sessions/${S.session}/approve`,{method:"POST",body:JSON.stringify({budget_usdc:S.budget,excluded_agent_ids:[...S.excluded]})});go(2)}catch(e){alert(e.message);$("#ap").disabled=false}}}
+
+function add(cls,html){const li=document.createElement("li");li.innerHTML=`<span class="ic ${cls}">${cls==""?"✓":cls=="w"?"!":cls=="x"?"×":""}</span><div>${html}</div>`;$("#feed").appendChild(li);li.scrollIntoView({block:"nearest"});return li}
+const txlink=(url,h)=>h&&h!="0x"?`<a class="tx" href="${url}" target="_blank" rel="noopener">View on Snowtrace</a> <span class="hash">${h.slice(0,10)}…${h.slice(-6)}</span>`:`<span class="muted small">no tx hash</span>`;
+function upd(){$("#mw").innerHTML=meter(0);$("#mtxt").innerHTML=`Spent: <b>${fmt(S.spent)} ${S.asset}</b> · Remaining: <b>${fmt(S.budget-S.spent)} ${S.asset}</b>`}
+
+function run(){S.spent=0;
+$("#app").innerHTML=`<h2>Live agent economy</h2><p class="muted" style="margin:6px 0 16px">Every payment and rating below is a real transaction on Avalanche Fuji.</p><div id="mw"></div><div class="card"><ul class="feed" id="feed"></ul></div>`;
+upd();let pending=null;
+if(S.es)S.es.close();const es=new EventSource(`/api/sessions/${S.session}/events`);S.es=es;
+const H={
+ started:e=>add("",`Session started with a ${e.budget} ${S.asset} cap.`),
+ agent_selected:e=>{pending=add("p",`<b>${esc(e.agent)}</b> selected for “${esc(e.subtask)}” at ${e.price} ${S.asset}${e.rating?` · rating ${e.rating}`:" · unrated"}<div class="small muted">${esc(e.reasoning)}</div>`)},
+ payment_settled:e=>{S.spent+=+e.amount;upd();if(pending){pending.innerHTML=`<span class="ic">✓</span><div>Paid <b>${esc(e.agent)}</b> ${e.amount} ${S.asset} via ${S.cfg?.payMode==="x402"?"x402":"on-chain transfer"} · settled in ${(e.ms/1000).toFixed(1)}s<br>${txlink(e.url,e.txHash)}</div>`;pending=null}},
+ result_received:e=>add("",`Result from <b>${esc(e.agent)}</b>: ${esc(e.summary).slice(0,220)}${e.summary.length>220?"…":""}<div class="small muted">${e.facts.length} facts · ${e.sources.length} sources · confidence ${e.confidence??"?"}</div>`),
+ rating_submitted:e=>add(e.score<=2?"x":"",`Rated <b>${esc(e.agent)}</b> <span class="stars">${stars(e.score)}</span> ${e.score}/5 on chain. <span class="small muted">${esc(e.justification)}</span><br>${txlink(e.url,e.txHash)}`),
+ agent_failed:e=>{if(pending){pending.remove();pending=null}add("w",`<b>${esc(e.agent||e.subtask)}</b>: ${esc(e.reason)}${e.fallback?` → ${esc(e.fallback)}`:""}`)},
+ budget_update:e=>{},
+ composing_report:()=>{pending=add("p","Composing the final report…")},
+ report_ready:e=>{es.close();if(pending)pending.remove();add("",`Report ready. Spent ${e.spent} ${S.asset}, ${e.remaining} ${S.asset} unspent.`);leaderboard();setTimeout(()=>go(3),900)},
+ error:e=>add("x",`Error: ${esc(e.message)}`),
+ plan_created:()=>{}};
+for(const k in H)es.addEventListener(k,ev=>H[k](JSON.parse(ev.data)));
+es.onerror=()=>{};}
+
+function md(s){return esc(s).replace(/^### (.*)$/gm,"<h3>$1</h3>").replace(/^## (.*)$/gm,"<h2>$1</h2>").replace(/^# (.*)$/gm,"<h1>$1</h1>").replace(/\*\*(.+?)\*\*/g,"<b>$1</b>").replace(/^\s*[-*] (.*)$/gm,"<li>$1</li>").replace(/(<li>.*<\/li>\n?)+/g,m=>"<ul>"+m+"</ul>").replace(/\n{2,}/g,"<br><br>")}
+async function report(){const R=await api(`/api/sessions/${S.session}/report`);
+$("#app").innerHTML=`<div class="card"><h2>Research complete</h2><div class="grid2" style="margin-top:14px"><div><div class="muted">Total spent</div><div class="hero-num">${R.spent}</div><div class="muted">test ${S.asset} across ${R.receipts.length} payments</div></div>
+<div><div class="muted">Unspent budget</div><div class="hero-num" style="color:var(--ink)">${R.remaining}</div><div class="muted">of ${R.budget} ${S.asset} cap</div></div></div></div>
+<div class="card report"><div class="rhead"><h3>Report</h3><button class="btn sm" id="dl">Download PDF</button></div>${md(R.report)}</div>
+<div class="card"><h3>Contributors</h3><p>${R.contributors.map(esc).join(", ")||"none"}</p></div>
+<div class="card"><h3>Payment receipts</h3><div class="tbl"><table><tbody>${R.receipts.map(r=>`<tr><td>${esc(r.agent)}<div>${txlink(r.url,r.txHash)}</div></td><td class="n">${r.amount} ${S.asset}</td></tr>`).join("")}<tr><td><b>Total</b></td><td class="n"><b>${R.spent} ${S.asset}</b></td></tr></tbody></table></div></div>
+<div class="card"><h3>Ratings posted on chain</h3><div class="tbl"><table><tbody>${R.ratings.map(r=>`<tr><td>${esc(r.agent)} <span class="stars">${stars(r.score)}</span><div class="small muted">${esc(r.justification)}</div><div>${txlink(r.url,r.txHash)}</div></td><td class="n">${r.score}/5</td></tr>`).join("")}</tbody></table></div></div>
+<div class="actions"><button class="btn" id="again">Ask again (watch it avoid the bad agent)</button><button class="btn ghost" id="nw">New question</button></div>`;
+$("#again").onclick=()=>go(0);$("#nw").onclick=()=>{S.q="";go(0)};
+$("#dl").onclick=async()=>{const b=$("#dl");b.disabled=true;b.textContent="Preparing PDF…";
+ try{const r=await fetch(`/api/sessions/${S.session}/report.pdf`);if(!r.ok)throw new Error((await r.json()).error||r.status);
+  const blob=await r.blob();const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=`agentbazaar-report-${R.id}.pdf`;document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(a.href)}
+ catch(e){console.warn("pdf endpoint failed, falling back to print",e);window.print()}
+ finally{b.disabled=false;b.textContent="Download PDF"}}}
+
+loadConfig();leaderboard();setInterval(leaderboard,15000);go(0);renderRegister();
+</script>
+</body>
+</html>

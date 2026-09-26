@@ -1,0 +1,13 @@
+# secrets
+.env
+app/.env
+app/.env.fork-example
+# dependencies and build output
+node_modules/
+app/node_modules/
+app/contracts/lib/
+app/contracts/out/
+app/contracts/cache/
+# local artefacts
+*.log
+.DS_Store

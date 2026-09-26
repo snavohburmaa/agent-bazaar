@@ -1,0 +1,52 @@
+{
+  "name": "app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "typecheck": "tsc -p .",
+    "facilitator": "tsx src/facilitator/server.ts",
+    "agent:news": "AGENT=news tsx src/agents/server.ts",
+    "agent:onchain": "AGENT=onchain tsx src/agents/server.ts",
+    "agent:budget": "AGENT=budget tsx src/agents/server.ts",
+    "agents": "npm-run-all -p agent:news agent:onchain agent:budget agent:sentiment",
+    "orchestrator": "tsx src/orchestrator/server.ts",
+    "seed": "tsx scripts/seed.ts",
+    "check": "tsx scripts/check.ts",
+    "smoke": "tsx scripts/smoke.ts",
+    "fund-local": "tsx scripts/fund-local.ts",
+    "dev": "npm-run-all -p facilitator agent:news agent:onchain agent:budget agent:sentiment orchestrator",
+    "deploy": "cd contracts && forge script script/Deploy.s.sol --rpc-url $FUJI_RPC_URL --broadcast --verify --verifier-url https://api.routescan.io/v2/network/testnet/evm/43113/etherscan --etherscan-api-key $SNOWTRACE_API_KEY -vv",
+    "deploy:noverify": "cd contracts && forge script script/Deploy.s.sol --rpc-url $FUJI_RPC_URL --broadcast -vv",
+    "test:contracts": "cd contracts && forge test",
+    "llm-test": "tsx scripts/llm-test.ts",
+    "reprice": "tsx scripts/reprice.ts",
+    "agent:sentiment": "AGENT=sentiment tsx src/agents/server.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.128.0",
+    "@x402/core": "^2.27.0",
+    "@x402/evm": "^2.27.0",
+    "@x402/express": "^2.27.0",
+    "@x402/fetch": "^2.27.0",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.4",
+    "express": "^5.2.1",
+    "openai": "^7.23.0",
+    "viem": "^2.56.9",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/node": "^26.6.3",
+    "npm-run-all": "^4.1.5",
+    "tsx": "^4.23.15",
+    "typescript": "^7.0.2"
+  }
+}

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="my">
+<head>
+<meta charset="utf-8">
+<title>AgentBazaar Hackathon Guide</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm; }
+  body { font-family: "Noto Sans Myanmar", "Myanmar Sangam MN", sans-serif; font-size: 11.5pt; line-height: 1.9; color: #1a1a1a; }
+  h1 { font-size: 22pt; line-height: 1.6; margin: 0 0 4px; color: #0f5c4d; }
+  h2 { font-size: 15pt; line-height: 1.7; margin: 26px 0 8px; padding-bottom: 4px; border-bottom: 2px solid #0f5c4d; color: #222; }
+  h3 { font-size: 12.5pt; margin: 16px 0 6px; color: #333; }
+  p { margin: 6px 0; }
+  ul, ol { margin: 4px 0 8px 22px; padding: 0; }
+  li { margin: 4px 0; }
+  table { border-collapse: collapse; width: 100%; margin: 8px 0 12px; font-size: 10.5pt; }
+  th, td { border: 1px solid #bbb; padding: 6px 8px; vertical-align: top; text-align: left; }
+  th { background: #dcece7; }
+  .sub { color: #666; font-size: 10.5pt; margin-bottom: 18px; }
+  .box { background: #eef7f4; border-left: 4px solid #0f5c4d; padding: 8px 12px; margin: 10px 0; }
+  .warn { background: #fff8e1; border-left: 4px solid #e0a800; padding: 8px 12px; margin: 10px 0; }
+  .bad { background: #f8e1de; border-left: 4px solid #a3271f; padding: 8px 12px; margin: 10px 0; }
+  code { font-family: Menlo, monospace; font-size: 10pt; background: #f2f2f2; padding: 1px 4px; }
+  pre { font-family: Menlo, monospace; font-size: 9.5pt; background: #f2f2f2; padding: 8px 10px; line-height: 1.5; white-space: pre-wrap; }
+  .pb { page-break-before: always; }
+  .keep { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<h1>AgentBazaar</h1>
+<p class="sub">Team1 Codebase Hackathon : Chula Edition အတွက် ၄ နာရီခွဲ အတွင်း ဆောက်ရန် လမ်းညွှန်<br>
+Track: AI Agent။ Chain: Avalanche Fuji (chain ID 43113)။ တစ်ယောက်တည်း ဆောက်မည်။</p>
+
+<h2>၁။ အကဲဖြတ်ချက် အကျဉ်း</h2>
+<p><b>Idea က ကောင်းသည်။</b> AI Agent track ၏ ဖော်ပြချက်ဖြစ်သော "micropayment rails via agent-to-agent transactions" နှင့် တိုက်ရိုက် ကိုက်ညီသည်။ Judge တွေ မြင်ရမည့် ဇာတ်လမ်းက ရှင်းသည်။ Agent တစ်ကောင်ကို ပိုက်ဆံ ၅၀ ဆင့် ပေးလိုက်သည်၊ သူက တခြား agent တွေကို ငှားသည်၊ ပိုက်ဆံ ပေးသည်၊ ညံ့တဲ့ agent ကို အမှတ်နည်းနည်း ပေးပြီး နောက်တစ်ခါ မငှားတော့ပါ။ အားလုံး Avalanche ပေါ်မှာ မြင်ရသည်။</p>
+
+<div class="bad">
+<b>အဓိက ပြဿနာ:</b> Folder ထဲက PRD က ၂၄ နာရီမှ ၄၈ နာရီ အတွက် ရေးထားသည်။ Hackathon က ၄ နာရီခွဲသာ ရှိသည် (၁၀:၅၀ မှ ၁၅:၃၀)။ PRD အတိုင်း အကုန် ဆောက်လျှင် ဘာမှ မပြီးဘဲ ဆုံးမည်။ ထို့ကြောင့် အောက်ပါ "၄ နာရီ version" အတိုင်းသာ ဆောက်ရမည်။
+</div>
+
+<h3>Folder ထဲမှာ ရှိပြီးသား အရာများ</h3>
+<table>
+<tr><th style="width:36%">File</th><th>အခြေအနေ</th></tr>
+<tr><td>AgentBazaar_PRD.md</td><td>Product spec အပြည့်အစုံ။ ၂၄ နာရီ plan။ Reference အဖြစ် ကောင်းသည်။</td></tr>
+<tr><td>agentbazaar-demo.html</td><td>UI mock တစ်ခု။ Backend မချိတ်ရသေး။ Frontend shell အဖြစ် ပြန်သုံးနိုင်သည်၊ အချိန် သက်သာမည်။</td></tr>
+<tr><td>agentbazaar_system_flow.svg, agentbazaar_user_flow.svg</td><td>Flow ပုံ ၂ ပုံ။ Pitch တွင် ပြရန် ကောင်းသည်။</td></tr>
+<tr><td>Code</td><td><b>မရှိသေးပါ။</b> Contract, backend, agent တစ်ခုမှ မရေးရသေး။</td></tr>
+</table>
+
+<h2>၂။ ၂၄ နာရီ version နှင့် ၄ နာရီ version ကွာခြားချက်</h2>
+<table>
+<tr><th style="width:30%">PRD ထဲမှာ</th><th style="width:14%">ဆုံးဖြတ်ချက်</th><th>အကြောင်းပြချက်</th></tr>
+<tr><td>AgentRegistry contract</td><td><b>ထားမည်</b></td><td>ဆုရရန် မဖြစ်မနေ။ Function ၆ ခုသာ၊ ၄၅ မိနစ်နှင့် ပြီးသည်။</td></tr>
+<tr><td>Specialist agent ၄ ကောင်</td><td><b>၃ ကောင်</b></td><td>News, Onchain, နှင့် ညံ့သော Budget Analyst။ Sentiment ကို ဖြုတ်မည်။ Budget Analyst က reputation demo အတွက် လိုသည်။</td></tr>
+<tr><td>x402 payment</td><td><b>Plan A</b></td><td>ပထမ ၃၀ မိနစ် စမ်းမည်။ Fuji ပေါ် facilitator အလုပ်လုပ်လျှင် သုံးမည်။</td></tr>
+<tr><td>x402 မရလျှင်</td><td><b>Plan B</b></td><td>Orchestrator က USDC ကို agent ၏ payTo သို့ တိုက်ရိုက် transfer လုပ်ပြီး tx hash ကို paymentRef အဖြစ် သုံးမည်။ Judge မြင်ရမည့် အရာ (Snowtrace ပေါ်က USDC transfer) က အတူတူပင်။</td></tr>
+<tr><td>LangGraph</td><td><b>ဖြုတ်မည်</b></td><td>Python loop ရိုးရိုးနှင့် Claude tool call တစ်ခုက လုံလောက်သည်။ Framework သင်ယူချိန် မရှိပါ။</td></tr>
+<tr><td>Vector cache (Chroma)</td><td><b>ဖြုတ်မည်</b></td><td>P1 ဖြစ်သည်။ Demo တွင် မလိုပါ။ လိုလျှင် dict cache ဖြင့် ၅ မိနစ် လုပ်နိုင်သည်။</td></tr>
+<tr><td>Plan approval screen</td><td><b>ထားမည်</b></td><td>Judge က "AI က ပိုက်ဆံ ထင်သလို သုံးလား" မေးလျှင် ဒါက အဖြေ။</td></tr>
+<tr><td>Next.js frontend</td><td><b>ရှိပြီးသား HTML</b></td><td>agentbazaar-demo.html ကို backend SSE နှင့် ချိတ်မည်။ Build tool မလိုပါ။</td></tr>
+<tr><td>Core wallet ချိတ်ခြင်း</td><td><b>အနည်းဆုံး ထည့်မည်</b></td><td>PRD တွင် user wallet မချိတ်ဟု ဆိုထားသော်လည်း judging criteria တွင် "Core wallet integration" ကို UX အမှတ်အတွက် ဖော်ပြထားသည်။ Connect ခလုတ် တစ်ခုနှင့် "Top up orchestrator" ဟူသော USDC ပို့သည့် feature ငယ် ထည့်ပါ။</td></tr>
+<tr><td>Backup video</td><td><b>ထားမည်</b></td><td>၁၄:၃၀ တွင် အောင်မြင်သော run တစ်ခုကို screen record လုပ်ပါ။ Wifi ကျလျှင် ဒါနဲ့ ပြမည်။</td></tr>
+</table>
+
+<h2 class="pb">၃။ လိုအပ်သော Tools များ</h2>
+<table>
+<tr><th style="width:26%">Tool</th><th>ဘာအတွက်</th><th style="width:22%">အခြေအနေ</th></tr>
+<tr><td>Node.js 24, npm</td><td>Specialist agent server များ (Express) နှင့် x402 SDK</td><td>ရှိပြီး</td></tr>
+<tr><td>Python 3 + pip</td><td>Orchestrator (FastAPI, web3.py, anthropic)။ သို့မဟုတ် အကုန် Node ဖြင့်လည်း ရသည်။ <b>အကြံ: အကုန် Node/TypeScript ဖြင့် လုပ်ပါ</b>၊ x402 SDK က TypeScript တွင် အပြည့်စုံဆုံး ဖြစ်သည်။</td><td>ရှိပြီး</td></tr>
+<tr><td>Foundry (forge, cast)</td><td>Contract compile, test, deploy, verify</td><td>ရှိပြီး (v1.7.1)</td></tr>
+<tr><td>Core wallet extension</td><td>Testnet wallet, demo တွင် connect ပြရန်</td><td>ထည့်ရန်</td></tr>
+<tr><td>Fuji AVAX</td><td>Gas အတွက်။ Deploy + rating tx ၁၀ ခုခန့်</td><td>Faucet မှ ယူရန်</td></tr>
+<tr><td>Fuji test USDC</td><td><b>မလိုတော့ပါ။</b> Agent များကို AVAX ဖြင့် ပေးမည် (PAY_MODE=avax)။ x402 USDC mode ကို သုံးမှသာ faucet.circle.com မှ ယူရန် လိုသည်။</td><td>မလို</td></tr>
+<tr><td>Anthropic API key</td><td>Orchestrator ၏ planning, agent ရွေးခြင်း, quality judge။ Specialist agent များ၏ အဖြေ ထုတ်ရန်လည်း သုံးမည်။</td><td>ယူရန်</td></tr>
+<tr><td>Snowtrace API key</td><td>Contract verify</td><td>ယူရန်</td></tr>
+<tr><td>x402 SDK</td><td><code>@x402/express</code> (server), <code>@x402/fetch</code> (client)။ Facilitator: thirdweb (build.avax.network/integrations/thirdweb-x402 ကို ကြည့်ပါ)။</td><td>Event နေ့ ပထမ ၃၀ မိနစ် စမ်းရန်</td></tr>
+<tr><td>viem / ethers</td><td>Registry ဖတ်ခြင်း, rateJob, USDC transfer (Plan B)</td><td>npm install</td></tr>
+<tr><td>Screen recorder</td><td>Backup video (QuickTime ဖြင့် ရသည်)</td><td>ရှိပြီး</td></tr>
+<tr><td>Phone hotspot</td><td>Venue wifi က RPC block လျှင်</td><td>ယူသွားရန်</td></tr>
+</table>
+
+<h2>၄။ ကိုယ်တိုင် လုပ်ရမည့်အရာများ (Manual)</h2>
+<div class="warn"><b>သတိ:</b> တကယ့် wallet မသုံးပါနှင့်။ Wallet အသစ် ၂ ခု ဖန်တီးပါ။ Private key ကို chat, Telegram, git ထဲ ဘယ်တော့မှ မထည့်ပါနှင့်။</div>
+
+<h3>Event မတိုင်မီ (ယနေ့ လုပ်ပါ)</h3>
+<table>
+<tr><th style="width:6%">#</th><th style="width:30%">လုပ်ရန်</th><th>အသေးစိတ်</th><th style="width:8%">✓</th></tr>
+<tr><td>၁</td><td>Core wallet ထည့်ရန်</td><td>core.app မှ extension ထည့်ပါ။ Testnet mode ဖွင့်ပါ။ Fuji C-Chain ရွေးပါ။</td><td>☐</td></tr>
+<tr><td>၂</td><td>Wallet ၂ ခု ဖန်တီးရန်</td><td><b>Orchestrator wallet</b> (ပိုက်ဆံ ပေးမည့်သူ) နှင့် <b>Provider wallet</b> (agent တွေ ပိုက်ဆံ လက်ခံမည့် payTo)။ Address ၂ ခုလုံး မှတ်ထားပါ။ Private key ၂ ခုလုံး export လုပ်ထားပါ။</td><td>☐</td></tr>
+<tr><td>၃</td><td>Fuji AVAX ယူရန်</td><td>build.avax.network/console/primary-network/faucet။ Orchestrator wallet ထဲ ထည့်ပါ။ ရလျှင် ၂ ကြိမ် ယူပါ။ Event နေ့တွင် faucet code ပေးတတ်သဖြင့် organizer ကို မေးပါ။</td><td>☐</td></tr>
+<tr><td>၄</td><td>USDC</td><td>မလိုတော့ပါ။ AVAX ဖြင့် ပေးချေမည်။ Demo တစ်ကြိမ်လျှင် 0.0075 AVAX ခန့်သာ ကုန်သည်။</td><td>✓</td></tr>
+<tr><td>၅</td><td>MetaMask ထဲ wallet import</td><td><code>.env</code> ထဲက PRIVATE_KEY ကို MetaMask တွင် "Import account" ဖြင့် ထည့်ပါ။ Fuji network (chain ID 43113, RPC https://api.avax-test.network/ext/bc/C/rpc) ထည့်ပါ။ Demo တွင် "Connect wallet" ခလုတ်အတွက်။</td><td>☐</td></tr>
+<tr><td>၆</td><td>Anthropic API key</td><td>console.anthropic.com။ $5 credit ထည့်ပါ။</td><td>☐</td></tr>
+<tr><td>၇</td><td>Snowtrace API key</td><td>snowtrace.io တွင် account ဖွင့်ပြီး API key ယူပါ။</td><td>☐</td></tr>
+<tr><td>၈</td><td>Telegram, Builder Hub</td><td>t.me/Team1TH join ပါ။ go.team1.network/thailand-core နှင့် thailand-builder ပြီးအောင် လုပ်ပါ။</td><td>☐</td></tr>
+<tr><td>၉</td><td>Fuji အစစ်ပေါ် တစ်ကြိမ် စမ်းရန်</td><td>Key များ ရပြီးလျှင် အပိုင်း ၈ ရှိ command ၄ ခုကို ယနေ့ည Fuji အစစ်ပေါ် တစ်ကြိမ် run ကြည့်ပါ။ အောင်မြင်သော run ကို screen record လုပ်ထားပါ။</td><td>☐</td></tr>
+<tr><td>၁၀</td><td>Code ကို ဖတ်ရန်</td><td><code>contracts/src/AgentRegistry.sol</code> နှင့် <code>src/orchestrator/session.ts</code> ကို တစ်ကြိမ် ဖတ်ပါ။ Judge မေးခွန်း ဖြေရန် အတွက်။</td><td>☐</td></tr>
+</table>
+
+<h3 class="keep">Event နေ့တွင် ကိုယ်တိုင် လုပ်ရမည့်အရာ</h3>
+<ul>
+<li><code>.env</code> ထဲ private key ၂ ခု, Anthropic key, Snowtrace key ထည့်ခြင်း။</li>
+<li>Deploy command run ပြီး contract address ကို <code>.env</code> နှင့် README ထဲ ထည့်ခြင်း။</li>
+<li>Seed script run ပြီး agent ၃ ကောင် register ဖြစ်သည်ကို Snowtrace တွင် စစ်ခြင်း။</li>
+<li>Demo run တစ်ကြိမ် အောင်မြင်လျှင် screen record လုပ်ခြင်း။</li>
+<li>Content ဆုအတွက် ဓာတ်ပုံ တစ်ပုံ @team1TH_ @avaxteam1 tag ဖြင့် တင်ခြင်း။</li>
+<li>၁၅:၂၀ တွင် submit လုပ်ခြင်း။ Contract address 0x6c098175cF0BC4EF90EE0c5239D56f7E3A576450 (verified), Snowtrace link, video link ထည့်ပါ။</li>
+</ul>
+
+<h2 class="pb">၅။ ၄ နာရီ ဆောက်ရန် အစီအစဉ်</h2>
+<table>
+<tr><th style="width:20%">အချိန်</th><th style="width:26%">လုပ်ရန်</th><th>ပြီးဆုံးရမည့် အခြေအနေ</th></tr>
+<tr><td>၁၀:၅၀ မှ ၁၁:၂၀</td><td>Setup + x402 စစ်ဆေး</td><td><code>.env</code> ပြည့်သည်။ Wallet ၂ ခုလုံး ပိုက်ဆံ ရှိသည်။ x402 hello world ကို နောက်ဆုံး တစ်ကြိမ် စမ်းပြီး Plan A သို့ B ဆုံးဖြတ်သည်။</td></tr>
+<tr><td>၁၁:၂၀ မှ ၁၂:၀၀</td><td>AgentRegistry</td><td>Fuji ပေါ် deploy, Snowtrace verify, agent ၃ ကောင် seed ပြီး။ <b>ဒီအချိန်မှာ ဆုရရန် အနည်းဆုံး လိုအပ်ချက် ပြည့်သွားပြီ။</b></td></tr>
+<tr><td>၁၂:၀၀ မှ ၁၂:၄၅</td><td>Specialist agent ၃ ကောင်</td><td>Express server ၃ ခု (port 4001, 4002, 4003)။ Payment မပါလျှင် 402 ပြန်သည်။ ပါလျှင် Claude ဖြင့် JSON အဖြေ ပြန်သည်။ Budget Analyst က တမင် ညံ့သော အဖြေ ပြန်သည်။</td></tr>
+<tr><td>၁၂:၄၅ မှ ၁၃:၄၅</td><td>Orchestrator</td><td>Question ရ → Claude က subtask ၂ မှ ၃ ခု ခွဲ → registry ဖတ် → agent ရွေး → budget စစ် → pay → result → Claude judge → rateJob → report။ SSE ဖြင့် event ထုတ်သည်။</td></tr>
+<tr><td>၁၃:၃၀</td><td>Mentor checkpoint</td><td>Contract address နှင့် agent ၁ ကောင် ပေးချေမှု ပြပါ။ x402 facilitator အကြောင်း mentor ကို မေးပါ။</td></tr>
+<tr><td>၁၃:၄၅ မှ ၁၄:၃၀</td><td>Frontend ချိတ်ခြင်း</td><td>ရှိပြီးသား demo.html ကို backend နှင့် ချိတ်သည်။ Budget meter, Snowtrace link, leaderboard, Core wallet connect ခလုတ်။</td></tr>
+<tr><td>၁၄:၃၀ မှ ၁၅:၀၀</td><td>Demo ၃ ကြိမ် လေ့ကျင့်</td><td>ပထမ အောင်မြင်သော run ကို screen record လုပ်သည်။</td></tr>
+<tr><td>၁၅:၀၀ မှ ၁၅:၂၀</td><td>README + submit</td><td>Contract address, tx links, video link။ ၁၅:၂၀ တွင် submit။</td></tr>
+</table>
+
+<div class="box">
+<b>စည်းမျဉ်း:</b> ၁၂:၀၀ တွင် contract deploy မပြီးသေးလျှင် တခြား အားလုံး ရပ်ပြီး contract ကိုသာ ပြီးအောင် လုပ်ပါ။ Contract မရှိလျှင် ဆု လုံးဝ မရပါ။
+</div>
+
+<h2>၆။ Demo Script (၃ မိနစ်)</h2>
+<ol>
+<li><b>Hook (၁၅ စက္ကန့်):</b> "ကျွန်တော့် AI agent ကို ၅၀ ဆင့် ပေးလိုက်ပြီး မေးခွန်း တစ်ခု မေးလိုက်ပါတယ်။ သူက တခြား AI တွေကို ငှားမယ်၊ ပိုက်ဆံ ပေးမယ်၊ ညံ့တဲ့ကောင်ကို ထုတ်ပစ်မယ်။ အားလုံး Avalanche ပေါ်မှာ။"</li>
+<li><b>Registry (၂၀ စက္ကန့်):</b> Snowtrace ပေါ်က verified contract နှင့် agent leaderboard ပြပါ။</li>
+<li><b>မေးခွန်း (၂၀ စက္ကန့်):</b> "Should I build a game on Avalanche right now?" ကို 0.05 AVAX budget ဖြင့် မေးပါ။ Plan နှင့် ခန့်မှန်း ကုန်ကျစရိတ် ပြပြီး approve နှိပ်ပါ။</li>
+<li><b>Live economy (၆၀ စက္ကန့်):</b> Feed ထဲတွင် agent ရွေးရသည့် အကြောင်းပြချက်၊ USDC payment နှင့် Snowtrace link၊ rating tx၊ budget meter ကျသွားသည်ကို ပြပါ။</li>
+<li><b>Reputation moment (၃၀ စက္ကန့်):</b> Budget Analyst က ညံ့သော အဖြေ ပြန်သည်။ ၁/၅ rating ကို on-chain တင်သည်။ ဒုတိယ မေးခွန်း မေးလျှင် သူ့ကို ကျော်သွားသည်။ <b>ဒါက wow moment ဖြစ်သည်။</b></li>
+<li><b>Report (၂၀ စက္ကန့်):</b> နောက်ဆုံး အဖြေ၊ စုစုပေါင်း ကုန်ကျစရိတ်၊ receipt များ။</li>
+<li><b>နိဂုံး (၁၅ စက္ကန့်):</b> "No accounts, no API keys, no middleman. An open agent economy with public reputation on Avalanche."</li>
+</ol>
+
+<h3 class="keep">Judge မေးနိုင်သော မေးခွန်းများ</h3>
+<table>
+<tr><th style="width:38%">မေးခွန်း</th><th>အဖြေ</th></tr>
+<tr><td>AI က budget ကျော်ပြီး သုံးနိုင်လား။</td><td>မရပါ။ Budget စစ်ဆေးမှုက code ထဲမှာ ဖြစ်သည်၊ LLM output ကို မယုံပါ။ Payment တိုင်း မတိုင်မီ remaining budget ကို စစ်သည်။ Session တစ်ခုလျှင် paid call အများဆုံး ၁၀ ခု။</td></tr>
+<tr><td>ဘယ်သူမဆို rateJob ခေါ်လို့ ရတာ ပြဿနာ မရှိလား။</td><td>သိပါသည်။ PaymentRef တစ်ခုလျှင် တစ်ကြိမ်သာ rate လုပ်နိုင်သည်။ နောက်တစ်ဆင့်တွင် paymentRef ကို USDC transfer နှင့် on-chain verify လုပ်မည်။ ERC-8004 ပုံစံကို လိုက်နာထားသည်။</td></tr>
+<tr><td>x402 ဆိုတာ ဘာလဲ။</td><td>HTTP 402 status ကို သုံးပြီး API call တစ်ခုချင်းစီကို stablecoin ဖြင့် ပေးချေသည့် standard ဖြစ်သည်။ Account, API key မလိုပါ။ (Plan B သုံးထားလျှင် "x402 pattern ကို ရိုးရှင်းစွာ ကိုယ်တိုင် implement လုပ်ထားသည်၊ USDC transfer tx hash က payment proof ဖြစ်သည်" ဟု ရိုးသားစွာ ပြောပါ။)</td></tr>
+<tr><td>ဘာကြောင့် Avalanche လဲ။</td><td>Sub-second finality ကြောင့် agent က ပေးချေပြီး ချက်ချင်း အလုပ် ဆက်လုပ်နိုင်သည်။ Gas သက်သာသဖြင့် $0.01 payment ဖြစ်နိုင်သည်။</td></tr>
+</table>
+
+<h2 class="pb">၇။ အန္တရာယ်များနှင့် ဖြေရှင်းနည်း</h2>
+<table>
+<tr><th style="width:36%">အန္တရာယ်</th><th>ဖြေရှင်းနည်း</th></tr>
+<tr><td>x402 facilitator က Fuji ပေါ် အလုပ်မလုပ်ခြင်း</td><td>ယနေ့ ကြိုစမ်းပါ။ Event နေ့ ၁၁:၂၀ ကျော်လျှင် Plan B (တိုက်ရိုက် USDC transfer) သို့ ချက်ချင်း ပြောင်းပါ။ နှစ်ခုလုံးကို skeleton ထဲ ကြိုရေးထားပါ။</td></tr>
+<tr><td>Faucet မရခြင်း</td><td>ယနေ့ ယူထားပါ။ Organizer ထံ faucet code တောင်းပါ။ USDC မရလျှင် ကိုယ်ပိုင် mock USDC (ERC20) deploy လုပ်ပြီး သုံးပါ၊ judge ကို ပြောပါ။</td></tr>
+<tr><td>Fuji RPC နှေးခြင်း</td><td>Public RPC ၂ ခု ကြိုထည့်ထားပါ။ UI တွင် "confirming" state ပြပါ။</td></tr>
+<tr><td>Wifi ကျခြင်း</td><td>Phone hotspot နှင့် backup video။</td></tr>
+<tr><td>Claude judge က score မတည်ငြိမ်ခြင်း</td><td>Rubric ပါသော prompt, temperature 0, JSON output။ Budget Analyst ၏ အဖြေကို တမင် ညံ့အောင် ရေးထားသဖြင့် ၁ သို့ ၂ ရမည်။</td></tr>
+<tr><td>အချိန် မလောက်ခြင်း</td><td>Order: contract → agent ၁ ကောင် → orchestrator → agent ကျန် ၂ ကောင် → frontend။ Frontend မပြီးလျှင် terminal log ဖြင့် demo ပြ၍ ရသည်။</td></tr>
+</table>
+
+<h2>၈။ App ကို ဆောက်ပြီးပါပြီ။ Event နေ့ command များ</h2>
+<p>Code အားလုံးက <code>hackathon/agentbazaar/app</code> ထဲမှာ ရှိပါပြီ။ Fuji ကို fork လုပ်ထားသော local chain ပေါ်တွင် x402 payment, on-chain rating, bad agent ကို ရှောင်ခြင်း အထိ စမ်းသပ် အောင်မြင်ပြီး ဖြစ်သည်။ Event နေ့တွင် အောက်ပါ အဆင့်များသာ လုပ်ရမည်။</p>
+<table>
+<tr><th style="width:8%">#</th><th style="width:34%">လုပ်ရန်</th><th>Command / အသေးစိတ်</th></tr>
+<tr><td>၁</td><td><code>.env</code> ဖြည့်ရန်</td><td><code>cp .env.example .env</code> ပြီး PRIVATE_KEY (orchestrator wallet), PROVIDER_ADDRESS, ANTHROPIC_API_KEY, SNOWTRACE_API_KEY ထည့်ပါ။</td></tr>
+<tr><td>၂</td><td>Contract deploy + verify</td><td><code>set -a; source .env; set +a</code> ပြီး <code>npm run deploy</code>။ ထွက်လာသော address ကို <code>.env</code> ထဲ REGISTRY_ADDRESS အဖြစ် ထည့်ပါ။</td></tr>
+<tr><td>၃</td><td>Agent ၃ ကောင် register</td><td><code>npm run seed</code> (transaction ၃ ခု)</td></tr>
+<tr><td>၄</td><td>Run</td><td><code>npm run dev</code> ပြီး browser တွင် http://localhost:3000 ဖွင့်ပါ။ တခြား terminal တွင် <code>npm run check</code> နှင့် <code>npm run smoke</code> ဖြင့် စစ်ပါ။</td></tr>
+</table>
+<h3>ပြဿနာ ရှိလျှင်</h3>
+<ul>
+<li><b>Payment:</b> Default က <code>PAY_MODE=avax</code> ဖြစ်ပြီး AVAX ကို တိုက်ရိုက် ပို့ကာ tx hash ကို proof အဖြစ် သုံးသည်။ x402 USDC ကို ပြချင်လျှင် <code>PAY_MODE=x402</code> ပြောင်းပြီး USDC ယူရန် လိုသည်။</li>
+<li><b>Anthropic API မရလျှင်:</b> <code>MOCK_LLM=1</code> ထည့်ပါ။ Payment နှင့် rating က အစစ်၊ အဖြေ စာသားသာ mock ဖြစ်မည်။</li>
+<li><b>Internet မရလျှင်:</b> README ထဲ "No internet" အပိုင်းအတိုင်း anvil fork ဖြင့် run ပါ။</li>
+</ul>
+<p>အသေးစိတ်ကို <code>app/README.md</code> တွင် ဖတ်ပါ။</p>
+
+<div class="box">
+<b>နောက်ဆုံး အကြံ:</b> Idea က Unlock Shield ထက် ပို "wow" ဖြစ်သည်။ ဒါပေမယ့် ရွေ့လျားနေသော အစိတ်အပိုင်း ပိုများသည် (server ၄ ခု, payment flow, contract)။ ယနေ့ x402 စမ်းခြင်းနှင့် skeleton ကြိုဆောက်ခြင်း ၂ ခု လုပ်ထားလျှင် ၄ နာရီအတွင်း ဖြစ်နိုင်သည်။ မလုပ်ထားလျှင် အန္တရာယ် ကြီးသည်။
+</div>
+
+</body>
+</html>

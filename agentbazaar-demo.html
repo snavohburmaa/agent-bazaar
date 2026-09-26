@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>AgentBazaar demo</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700&family=IBM+Plex+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef1ee;--card:#fff;--ink:#14211c;--mute:#5d6b65;--line:#d3dbd6;--acc:#0f5c4d;--accsoft:#dcece7;--warn:#a85f00;--warnsoft:#fbeed8;--bad:#a3271f;--badsoft:#f8e1de;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1714;--card:#182320;--ink:#e6efeb;--mute:#93a49c;--line:#2b3a35;--acc:#5cc8ad;--accsoft:#173a31;--warn:#e8a950;--warnsoft:#3a2b12;--bad:#f08b82;--badsoft:#3b1b18}}
+:root[data-theme="dark"]{--bg:#0f1714;--card:#182320;--ink:#e6efeb;--mute:#93a49c;--line:#2b3a35;--acc:#5cc8ad;--accsoft:#173a31;--warn:#e8a950;--warnsoft:#3a2b12;--bad:#f08b82;--badsoft:#3b1b18}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque",system-ui,sans-serif;margin:0;line-height:1.15}
+h1{font-size:clamp(28px,5vw,40px)}h2{font-size:24px}h3{font-size:17px}
+main{max-width:760px;margin:0 auto;padding:20px 16px 60px}
+header{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.logo{font:700 20px "Bricolage Grotesque",sans-serif}
+.tag{font-size:12px;background:var(--warnsoft);color:var(--warn);padding:3px 9px;border-radius:99px}
+.steps{display:flex;gap:6px;margin-bottom:22px}
+.steps div{flex:1;font-size:13px;color:var(--mute);border-top:3px solid var(--line);padding-top:6px}
+.steps .on{color:var(--ink);border-color:var(--acc)}.steps .done{border-color:var(--acc)}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;margin-bottom:16px}
+label{display:block;font-weight:500;margin:0 0 6px}
+input[type=text],input[type=number],textarea{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:11px 12px}
+textarea{min-height:84px;resize:vertical}
+input:focus,textarea:focus,button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.chip{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--mute);border-radius:99px;padding:5px 11px;cursor:pointer}
+.chip:hover{border-color:var(--acc);color:var(--ink)}
+.btn{font:500 16px "IBM Plex Sans",sans-serif;background:var(--acc);color:var(--bg);border:0;border-radius:10px;padding:12px 20px;cursor:pointer}
+:root[data-theme="light"] .btn,:root:not([data-theme]) .btn{color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn.ghost{background:none;color:var(--ink);border:1px solid var(--line)}
+.muted{color:var(--mute);font-size:14px}
+table{width:100%;border-collapse:collapse}
+th,td{text-align:left;padding:11px 6px;border-bottom:1px solid var(--line);vertical-align:middle}
+th{font-weight:500;color:var(--mute);font-size:13px}
+td.n,th.n{text-align:right;white-space:nowrap}
+tr.off td{opacity:.4}
+.tbl{overflow-x:auto}
+.meter{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin-bottom:16px}
+.bar{height:12px;border-radius:99px;background:var(--line);overflow:hidden;display:flex;margin:8px 0}
+.bar i{display:block;height:100%;transition:width .5s}
+.b-spent{background:var(--acc)}.b-est{background:repeating-linear-gradient(45deg,var(--accsoft),var(--accsoft) 4px,transparent 4px,transparent 8px)}
+.b-over{background:var(--bad)}
+.meta{display:flex;justify-content:space-between;font-size:14px;flex-wrap:wrap;gap:4px}
+.warn{background:var(--warnsoft);color:var(--warn);border-radius:10px;padding:10px 12px;font-size:14px;margin:12px 0}
+.feed{list-style:none;margin:0;padding:0}
+.feed li{display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.feed li:last-child{border:0}
+.ic{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:13px;background:var(--accsoft);color:var(--acc)}
+.ic.w{background:var(--warnsoft);color:var(--warn)}.ic.x{background:var(--badsoft);color:var(--bad)}
+.ic.p::after{content:"";width:10px;height:10px;border:2px solid var(--acc);border-right-color:transparent;border-radius:50%;animation:s 1s linear infinite}
+@keyframes s{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.ic.p::after{animation:none}.bar i{transition:none}}
+.tx{font-size:13px;color:var(--acc);background:none;border:0;padding:0;cursor:pointer;text-decoration:underline;font-family:inherit}
+.hash{display:none;margin-top:6px;font:12px ui-monospace,monospace;background:var(--bg);border-radius:8px;padding:8px;word-break:break-all;color:var(--mute)}
+.hash.open{display:block}
+.hero-num{font:700 44px "Bricolage Grotesque",sans-serif;color:var(--acc)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:520px){.grid2{grid-template-columns:1fr}}
+ul.plain{margin:8px 0 0;padding-left:20px}
+ul.plain li{margin-bottom:6px}
+.src{font-size:13px;color:var(--mute)}
+.actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.sw{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);margin-top:12px}
+.sw input{width:auto}
+</style>
+</head>
+<body>
+<main>
+<header><div class="logo">AgentBazaar</div><span class="tag">Testnet demo · no wallet needed</span></header>
+<div class="steps" id="steps"></div>
+<div id="app"></div>
+</main>
+<script>
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toFixed(2);
+const hx=()=>"0x"+Array.from({length:64},()=>"0123456789abcdef"[Math.random()*16|0]).join("");
+const S={q:"What is happening in the Avalanche ecosystem?",budget:0.5,step:0,failSim:false,token:0,
+agents:[
+{id:"news",task:"Find recent developments",name:"News Analyst",cost:.02,on:true},
+{id:"chain",task:"Examine blockchain activity",name:"On-chain Analyst",cost:.05,on:true},
+{id:"sent",task:"Summarize community sentiment",name:"Sentiment Agent",cost:.01,on:true}],
+spent:0,receipts:[],feed:[],done:false,retried:false};
+const total=()=>S.agents.filter(a=>a.on).reduce((s,a)=>s+a.cost,0);
+const names=["1 Question","2 Plan","3 Research","4 Report"];
+function steps(){$("#steps").innerHTML=names.map((n,i)=>`<div class="${i==S.step?"on":i<S.step?"done":""}">${n}</div>`).join("")}
+function go(n){S.step=n;steps();[home,plan,run,report][n]();scrollTo(0,0)}
+
+function home(){
+$("#app").innerHTML=`<h1>Research anything. Spend only what you allow.</h1>
+<p class="muted" style="margin:10px 0 20px">Specialist AI agents are hired for each part of your question. You approve the plan and the spending limit first.</p>
+<div class="card"><label for="q">What would you like to research?</label>
+<textarea id="q">${S.q}</textarea>
+<div class="chips">${["What is happening in the Avalanche ecosystem?","Is DeFi lending growing on Avalanche?","Which Avalanche subnets are most active?"].map(t=>`<button class="chip" data-q="${t}">${t}</button>`).join("")}</div>
+<div class="row" style="margin-top:18px"><div style="flex:1;min-width:180px"><label for="b">Maximum spending (test USDC)</label>
+<input type="number" id="b" min="0.01" step="0.01" value="${fmt(S.budget)}"></div>
+<button class="btn" id="go">Create research plan</button></div>
+<p class="muted" style="margin:14px 0 0">This is a spending cap for specialist services, not a deposit. The demo wallet is already funded.</p></div>`;
+document.querySelectorAll(".chip").forEach(c=>c.onclick=()=>$("#q").value=c.dataset.q);
+$("#go").onclick=()=>{S.q=$("#q").value.trim()||S.q;S.budget=Math.max(.01,+$("#b").value||.5);go(1)}}
+
+function meter(est){
+const spent=S.spent,pct=x=>Math.min(100,x/S.budget*100);
+const over=spent+est>S.budget+1e-9;
+return `<div class="meter"><div class="meta"><span>Budget: <b>${fmt(S.budget)} USDC</b></span><span id="mtxt"></span></div>
+<div class="bar"><i class="b-spent" style="width:${pct(spent)}%"></i><i class="${over?"b-over":"b-est"}" style="width:${pct(est)}%"></i></div></div>`}
+
+function plan(){
+S.spent=0;
+$("#app").innerHTML=`<h2>Review the plan</h2><p class="muted" style="margin:6px 0 16px">Nothing is spent until you approve. “${S.q}”</p>
+<div id="mw"></div>
+<div class="card"><div class="tbl"><table><thead><tr><th>Include</th><th>Task</th><th>Specialist</th><th class="n">Est. cost</th></tr></thead><tbody id="tb"></tbody>
+<tfoot><tr><td colspan="3"><b>Total</b></td><td class="n"><b id="tot"></b></td></tr></tfoot></table></div>
+<div class="row" style="margin-top:16px"><div><label for="b2">Budget (test USDC)</label><input type="number" id="b2" min="0.01" step="0.01" value="${fmt(S.budget)}" style="width:130px"></div></div>
+<label class="sw"><input type="checkbox" id="fs" ${S.failSim?"checked":""}> Demo option: make the Sentiment Agent return a weak answer</label>
+<div id="wn"></div></div>
+<div class="actions"><button class="btn ghost" id="bk">Back</button><button class="btn" id="ap">Approve and start</button></div>`;
+const draw=()=>{
+$("#tb").innerHTML=S.agents.map((a,i)=>`<tr class="${a.on?"":"off"}"><td><input type="checkbox" data-i="${i}" ${a.on?"checked":""} aria-label="Include ${a.name}"></td><td>${a.task}</td><td>${a.name}</td><td class="n">${fmt(a.cost)} USDC</td></tr>`).join("");
+const t=total();$("#tot").textContent=fmt(t)+" USDC";
+$("#mw").innerHTML=meter(t);
+$("#mtxt").innerHTML=`Estimated spending: <b>${fmt(t)} of ${fmt(S.budget)} USDC</b>`;
+const over=t>S.budget+1e-9,none=t==0;
+$("#wn").innerHTML=over?`<div class="warn">This plan costs more than your budget. Exclude a specialist or raise the budget.</div>`:none?`<div class="warn">Include at least one specialist to continue.</div>`:"";
+$("#ap").disabled=over||none;
+document.querySelectorAll("#tb input").forEach(c=>c.onchange=()=>{S.agents[c.dataset.i].on=c.checked;draw()})};
+draw();
+$("#b2").oninput=e=>{S.budget=Math.max(.01,+e.target.value||.01);draw()};
+$("#fs").onchange=e=>S.failSim=e.target.checked;
+$("#bk").onclick=()=>go(0);$("#ap").onclick=()=>go(2)}
+
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+function add(cls,html){const li=document.createElement("li");li.innerHTML=`<span class="ic ${cls}">${cls==""?"✓":cls=="w"?"!":cls=="x"?"×":""}</span><div>${html}</div>`;$("#feed").appendChild(li);return li}
+function pay(a,cost,label){
+const h=hx();S.spent+=cost;S.receipts.push({name:label,cost,h});
+$("#mw").innerHTML=meter(0);upd();
+return `<button class="tx" onclick="this.nextElementSibling.classList.toggle('open')">View transaction</button><div class="hash">Avalanche Fuji testnet · ${h}</div>`}
+function upd(){$("#mw").innerHTML=meter(0);$("#mtxt").innerHTML=`Spent: <b>${fmt(S.spent)} USDC</b> · Remaining: <b>${fmt(S.budget-S.spent)} USDC</b>`}
+
+async function run(){
+const tk=++S.token;S.spent=0;S.receipts=[];S.retried=false;S.gap=false;S.used=[];
+$("#app").innerHTML=`<h2>Research in progress</h2><p class="muted" style="margin:6px 0 16px">Payments settle as each specialist is hired. You can inspect every transaction.</p><div id="mw"></div><div class="card"><ul class="feed" id="feed"></ul></div>`;
+upd();
+const ok=()=>tk==S.token;
+for(const a of S.agents.filter(x=>x.on)){
+ if(!ok())return;
+ const w=add("p",`${a.name} is being hired…`);await sleep(900);if(!ok())return;
+ const t=pay(a,a.cost,a.name);
+ w.innerHTML=`<span class="ic">✓</span><div>${a.name} hired. Payment confirmed: ${fmt(a.cost)} USDC<br>${t}</div>`;
+ const wk=add("p",`${a.name} working…`);await sleep(1300);if(!ok())return;
+ const bad=S.failSim&&a.id=="sent";
+ if(!bad){wk.innerHTML=`<span class="ic">✓</span><div>${a.task.replace("Find","Recent developments").replace("Examine","Blockchain activity").replace("Summarize","Sentiment")} received from ${a.name}</div>`;
+  await sleep(600);add("",`Result evaluated. Rating submitted: 5/5`);S.used.push(a.name)}
+ else{
+  wk.innerHTML=`<span class="ic x">×</span><div>Answer received from ${a.name}</div>`;await sleep(700);if(!ok())return;
+  add("x",`<b>Low rating submitted (1/5).</b> This answer lacked supporting sources.`);await sleep(900);if(!ok())return;
+  const rc=.02;
+  if(S.spent+rc<=S.budget+1e-9){
+   add("w",`Trying another specialist within your approved budget. Replacement cost: ${fmt(rc)} USDC.`);await sleep(900);
+   const w2=add("p","Sentiment Agent B is being hired…");await sleep(900);if(!ok())return;
+   const t2=pay(a,rc,"Sentiment Agent B (replacement)");
+   w2.innerHTML=`<span class="ic">✓</span><div>Sentiment Agent B hired. Payment confirmed: ${fmt(rc)} USDC<br>${t2}</div>`;
+   await sleep(1200);add("","Sentiment received, with sources");await sleep(500);add("","Result evaluated. Rating submitted: 5/5");S.used.push("Sentiment Agent B");S.retried=true}
+  else{S.gap=true;add("w",`Not enough budget left for a replacement. Sentiment analysis will be listed as a gap in the report.`)}}
+}
+await sleep(800);if(!ok())return;
+add("","Report assembled");await sleep(700);if(ok())go(3)}
+
+function report(){
+const on=n=>S.used.includes(n),spent=S.spent;
+const F=[];
+if(on("News Analyst"))F.push(["Ecosystem news","Recent coverage points to continued growth in institutional tokenization pilots and gaming subnets.","Avalanche Blog · CoinDesk"]);
+if(on("On-chain Analyst"))F.push(["On-chain activity","Daily active addresses and C-Chain transaction counts have held steady, with stablecoin transfer volume rising.","Snowtrace · DefiLlama"]);
+if(on("Sentiment Agent")||on("Sentiment Agent B"))F.push(["Community sentiment","Discussion is broadly positive, centered on subnet launches and developer grants, with some concern about liquidity depth.","X · Reddit · Discord"]);
+const lim=[];
+S.agents.filter(a=>!a.on).forEach(a=>lim.push(`${a.task} was excluded from the plan, so this report does not cover it.`));
+if(S.gap)lim.push("Community sentiment is missing: the first answer was rejected and the budget could not cover a replacement.");
+if(S.retried)lim.push("The first sentiment answer was rejected for missing sources, so a replacement was purchased.");
+if(!lim.length)lim.push("Demo data is illustrative. Figures should be verified before you rely on them.");
+$("#app").innerHTML=`<div class="card"><h2>Research complete</h2>
+<div class="grid2" style="margin-top:14px"><div><div class="muted">Total spent</div><div class="hero-num">${fmt(spent)}</div><div class="muted">test USDC</div></div>
+<div><div class="muted">Unused budget</div><div class="hero-num" style="color:var(--ink)">${fmt(S.budget-spent)}</div><div class="muted">test USDC. An unspent allowance, not a refund, since nothing was deposited.</div></div></div></div>
+<div class="card"><h3>Answer</h3><p style="margin:8px 0 0">${S.q.replace(/\?$/,"")}: the ecosystem looks active and healthy. Development news is positive, on-chain usage is stable with stablecoin activity growing, and the community is optimistic but watching liquidity.</p></div>
+<div class="card"><h3>Findings and sources</h3>${F.map(f=>`<div style="margin-top:12px"><b>${f[0]}</b><div>${f[1]}</div><div class="src">Sources: ${f[2]}</div></div>`).join("")}</div>
+<div class="card"><h3>Specialists who contributed</h3><ul class="plain">${S.used.map(u=>`<li>${u}</li>`).join("")}</ul></div>
+<div class="card"><h3>Limitations</h3><ul class="plain">${lim.map(l=>`<li>${l}</li>`).join("")}</ul></div>
+<div class="card"><h3>Payment receipts</h3><div class="tbl"><table><tbody>${S.receipts.map(r=>`<tr><td>${r.name}<div class="hash" style="display:block">${r.h}</div></td><td class="n">${fmt(r.cost)} USDC</td></tr>`).join("")}<tr><td><b>Total</b></td><td class="n"><b>${fmt(spent)} USDC</b></td></tr></tbody></table></div></div>
+<div class="card"><h3>Ask a follow-up</h3><input type="text" id="fu" placeholder="e.g. Which subnets are growing fastest?" style="margin-top:10px">
+<p class="muted" style="margin:8px 0 12px">Matching earlier results are reused at no cost. Any new paid work needs a new plan approval.</p>
+<div class="actions"><button class="btn" id="fb">Create follow-up plan</button><button class="btn ghost" id="nw">Start a new question</button></div></div>`;
+$("#fb").onclick=()=>{const v=$("#fu").value.trim();if(v)S.q=v;S.agents.forEach(a=>a.on=true);S.agents[0].cost=0;S.agents[0].task="Find recent developments (reused, cached)";go(1)};
+$("#nw").onclick=()=>{S.agents[0].cost=.02;S.agents[0].task="Find recent developments";S.agents.forEach(a=>a.on=true);go(0)}}
+go(0);
+</script>
+</body>
+</html>
